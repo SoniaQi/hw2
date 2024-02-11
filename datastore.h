@@ -35,6 +35,7 @@ public:
      *  type 0 = AND search (intersection of results for each term) while
      *  type 1 = OR search (union of results for each term)
      */
+    virtual std::vector<Product*> searchdbug(std::vector<std::string>& terms, int type, std::ostream& os) = 0;
     virtual std::vector<Product*> search(std::vector<std::string>& terms, int type) = 0;
 
     /**

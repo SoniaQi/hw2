@@ -9,6 +9,7 @@
 #include "db_parser.h"
 #include "product_parser.h"
 #include "util.h"
+#include "mydatastore.h"
 
 using namespace std;
 struct ProdNameSorter {
@@ -29,7 +30,7 @@ int main(int argc, char* argv[])
      * Declare your derived DataStore object here replacing
      *  DataStore type to your derived type
      ****************/
-    DataStore ds;
+    MyDataStore ds;
 
 
 
@@ -77,8 +78,11 @@ int main(int argc, char* argv[])
                     term = convToLower(term);
                     terms.push_back(term);
                 }
+                //ofstream ostr("myfile.txt");
+                //hits = ds.searchdbug(terms, 0,ostr);
                 hits = ds.search(terms, 0);
                 displayProducts(hits);
+                //cout << ostr.rdbuf();
             }
             else if ( cmd == "OR" ) {
                 string term;
@@ -87,8 +91,14 @@ int main(int argc, char* argv[])
                     term = convToLower(term);
                     terms.push_back(term);
                 }
+                //ofstream ostr("myfile.txt");
+                //hits = ds.searchdbug(terms, 1,ostr);
                 hits = ds.search(terms, 1);
                 displayProducts(hits);
+                //cout << ostr.rdbuf();
+                //cout << "finish or" << endl;
+                
+                
             }
             else if ( cmd == "QUIT") {
                 string filename;
@@ -100,16 +110,41 @@ int main(int argc, char* argv[])
                 done = true;
             }
 	    /* Add support for other commands here */
-
-
-
-
+            else if (cmd == "ADD") {
+                string username;
+                int hit;
+                if (ss >> username) {
+                    if (ss >> hit) {
+                        if (ds.add(username,hit)==-1) {
+                            cout << "Invalid request\n" << endl;
+                        }
+                    }
+                }
+            }
+            else if (cmd == "VIEWCART") {
+                string username;
+                if (ss >> username) {
+                    std::ostream& ostr = std::cout;
+                    if (ds.view(username,ostr)==-1) {
+                        cout << "Invalid username\n" << endl;
+                    }
+                }
+            }
+            else if (cmd == "BUYCART") {
+                string username;
+                if (ss >> username) {
+                    if (ds.buy(username)==-1) {
+                        cout << "Invalid username\n" << endl;
+                    }
+                }
+            }
             else {
                 cout << "Unknown command" << endl;
             }
         }
-
+      //cout << "gothere" << endl;
     }
+
     return 0;
 }
 
@@ -124,6 +159,7 @@ void displayProducts(vector<Product*>& hits)
     for(vector<Product*>::iterator it = hits.begin(); it != hits.end(); ++it) {
         cout << "Hit " << setw(3) << resultNo << endl;
         cout << (*it)->displayString() << endl;
+        //cout << "pass that" << endl;
         cout << endl;
         resultNo++;
     }
